@@ -83,4 +83,16 @@ public class Passport {
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
+
+    @Override
+    public String toString() {
+        return "Passport{"
+                + "id=" + id
+                + ", series='" + series + '\''
+                + ", number='" + number + '\''
+                + ", dateOfIssue=" + dateOfIssue
+                + ", fio='" + fio + '\''
+                + ", dateOfBirth=" + dateOfBirth
+                + '}';
+    }
 }
