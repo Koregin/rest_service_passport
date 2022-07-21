@@ -6,9 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.job4j.passport.model.Passport;
 import ru.job4j.passport.repository.PassportRepository;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,92 +47,19 @@ public class PassportService {
         return status;
     }
 
-    public List<Passport> findAll(String series) {
-        List<Passport> passports = new ArrayList<>();
-        if (series != null) {
-            passports = repository.findAllBySeries(series);
-        } else {
-            repository.findAll().forEach(passports::add);
-        }
-        return passports;
+    public List<Passport> findAll(Optional<Integer> series) {
+        return series.isPresent() ? repository.findAllBySeries(series.get()) : repository.findAll();
     }
 
     public List<Passport> findUnavailable() {
-        List<Passport> passports = new ArrayList<>();
-        repository.findAll().forEach(passports::add);
-        List<Passport> unavailablePassports = new ArrayList<>();
-        for (Passport passport : passports) {
-            if (unavailable(passport.getDateOfIssue(), passport.getDateOfBirth())) {
-                unavailablePassports.add(passport);
-            }
-        }
-        return unavailablePassports;
+        return repository.findUnavailable();
     }
 
     public List<Passport> findReplaceable() {
-        List<Passport> passports = new ArrayList<>();
-        repository.findAll().forEach(passports::add);
-        List<Passport> replaceablePassports = new ArrayList<>();
-        for (Passport passport : passports) {
-            if (replaceable(passport.getDateOfIssue(), passport.getDateOfBirth())) {
-                replaceablePassports.add(passport);
-            }
-        }
-        return replaceablePassports;
+        return repository.findReplaceable();
     }
 
-    /*
-    Check for unavailable passport status
-     */
-    private boolean unavailable(LocalDate passportDate, LocalDate dateOfBirth) {
-        boolean status = true;
-        LocalDate currentDate = LocalDate.now();
-        int currAge = Period.between(dateOfBirth, currentDate).getYears();
-        if (currAge > 14 && currAge < 20) {
-            if (passportDate.isAfter(dateOfBirth.plusYears(14)) && passportDate.isBefore(dateOfBirth.plusYears(20))) {
-                status = false;
-            }
-        } else if (currAge >= 20 && currAge < 45) {
-            if (passportDate.isAfter(dateOfBirth.plusYears(20)) && passportDate.isBefore(dateOfBirth.plusYears(45))) {
-                status = false;
-            }
-        } else {
-            if (passportDate.isAfter(dateOfBirth.plusYears(45))) {
-                status = false;
-            }
-        }
-        return status;
-    }
-
-    /*
-    Check passport for replaceable
-     */
-    private boolean replaceable(LocalDate passportDate, LocalDate dateOfBirth) {
-        boolean status = true;
-        LocalDate currentDate = LocalDate.now();
-        int currAge = Period.between(dateOfBirth, currentDate).getYears();
-        if (unavailable(passportDate, dateOfBirth)) {
-            return false;
-        }
-        if (currAge > 14 && currAge < 20) {
-            if (currentDate.isAfter(dateOfBirth.plusYears(14))
-                    && currentDate.isBefore(dateOfBirth.plusYears(20).minusMonths(3))) {
-                status = false;
-            }
-        } else if (currAge >= 20 && currAge < 45) {
-            if (currentDate.isAfter(dateOfBirth.plusYears(20))
-                    && currentDate.isBefore(dateOfBirth.plusYears(45).minusMonths(3))) {
-                status = false;
-            }
-        } else {
-            if (currentDate.isAfter(dateOfBirth.plusYears(45))) {
-                status = false;
-            }
-        }
-        return status;
-    }
-
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 120000)
     public void sendMessagesWithUnavailablePassports() {
         System.out.println("Check passports");
         List<Passport> passports = findUnavailable();

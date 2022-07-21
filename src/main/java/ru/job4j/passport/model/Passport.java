@@ -4,6 +4,8 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "Passport", uniqueConstraints = {
+        @UniqueConstraint(name = "UniqueSeriesNumber", columnNames = {"series", "number"})})
 public class Passport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -11,10 +13,10 @@ public class Passport {
     private int id;
 
     @Column(name = "series")
-    private String series;
+    private int series;
 
     @Column(name = "number")
-    private String number;
+    private int number;
 
     @Column(name = "date_of_issue")
     private LocalDate dateOfIssue;
@@ -28,7 +30,7 @@ public class Passport {
     public Passport() {
     }
 
-    public Passport(String series, String number, LocalDate dateOfIssue, String fio, LocalDate dateOfBirth) {
+    public Passport(int series, int number, LocalDate dateOfIssue, String fio, LocalDate dateOfBirth) {
         this.series = series;
         this.number = number;
         this.dateOfIssue = dateOfIssue;
@@ -44,19 +46,19 @@ public class Passport {
         this.id = id;
     }
 
-    public String getSeries() {
+    public int getSeries() {
         return series;
     }
 
-    public void setSeries(String series) {
+    public void setSeries(int series) {
         this.series = series;
     }
 
-    public String getNumber() {
+    public int getNumber() {
         return number;
     }
 
-    public void setNumber(String number) {
+    public void setNumber(int number) {
         this.number = number;
     }
 

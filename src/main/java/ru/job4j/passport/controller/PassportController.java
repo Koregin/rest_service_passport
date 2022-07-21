@@ -7,6 +7,7 @@ import ru.job4j.passport.model.Passport;
 import ru.job4j.passport.service.PassportService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/passport")
@@ -36,7 +37,7 @@ public class PassportController {
     }
 
     @GetMapping("/find")
-    public List<Passport> findAll(@RequestParam(required = false) String series) {
+    public List<Passport> findAll(@RequestParam(required = false) Optional<Integer> series) {
         return passportService.findAll(series);
     }
 
