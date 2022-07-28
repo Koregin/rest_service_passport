@@ -1,5 +1,7 @@
 package ru.job4j.passport.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,9 @@ import java.util.Optional;
 
 @Service
 public class PassportService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PassportService.class.getSimpleName());
+
     private final PassportRepository repository;
 
     private final KafkaTemplate<Long, List<Passport>> kafkaTemplate;
@@ -59,9 +64,9 @@ public class PassportService {
         return repository.findReplaceable();
     }
 
-    @Scheduled(fixedRate = 120000)
+    @Scheduled(fixedRate = 30000)
     public void sendMessagesWithUnavailablePassports() {
-        System.out.println("Check passports");
+        LOGGER.info("Check passports");
         List<Passport> passports = findUnavailable();
         if (passports.size() > 0) {
             kafkaTemplate.send("passport", messageId, passports);
